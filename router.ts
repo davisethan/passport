@@ -11,11 +11,11 @@ class PassportRouter {
 
     /**
      * Express.js webapp router
-     * @param {any} params Grouped parameters
+     * @param {any} options Grouped parameters
      */
-    public constructor(params: any) {
-        this.passport = params.passport;
-        this.memoryStore = params.memoryStore;
+    public constructor(options: any) {
+        this.passport = options.passport;
+        this.memoryStore = options.memoryStore;
         this.router = express.Router();
     }
 
@@ -35,6 +35,8 @@ class PassportRouter {
         this.getRoot();
         this.getSignup();
         this.postLocalSignup();
+        this.getLocalLogin();
+        this.postLocalLogin();
     }
 
     /**
@@ -73,6 +75,31 @@ class PassportRouter {
         this.router.post("/local-signup", this.passport.authenticate("local-signup", {
             successRedirect: "/",
             failureRedirect: "/signup"
+        }));
+    }
+
+    /**
+     * Express.js webapp HTTP GET local login
+     * @returns {void}
+     */
+    private getLocalLogin = (): void => {
+        this.router.get("/login", (req: any, res: any): void => {
+            const filename: string = "login.html";
+            const options: any = {
+                root: path.join(__dirname, "/public")
+            };
+            res.sendFile(filename, options);
+        });
+    }
+
+    /**
+     * Express.js webapp HTTP POST local login
+     * @returns {void}
+     */
+    private postLocalLogin = (): void => {
+        this.router.post("/local-login", this.passport.authenticate("local-login", {
+            successRedirect: "/",
+            failureRedirect: "/login"
         }));
     }
 }

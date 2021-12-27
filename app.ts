@@ -3,7 +3,8 @@ import * as express from "express";
 import * as passport from "passport";
 import * as session from "express-session";
 const MemoryStore: any = require("memorystore")(session);
-import { PassportLocalSignup } from "./passport";
+import PassportLocalSignup from "./passportLocalSignup";
+import PassportLocalLogin from "./passportLocalLogin";
 import PassportRouter from "./router";
 
 /**
@@ -65,12 +66,13 @@ class App {
      * @returns {void}
      */
     private configureAuthentication = (): void => {
-        const passportLocalSignup: any = new PassportLocalSignup({
+        const options: any = {
             session: this.session,
             passport: this.passport,
             memoryStore: this.memoryStore
-        })
-        passportLocalSignup.configure();
+        };
+        new PassportLocalSignup(options).configure();
+        new PassportLocalLogin(options).configure();
     }
 
     /**

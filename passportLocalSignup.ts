@@ -14,12 +14,12 @@ class PassportLocalSignup {
 
     /**
      * Express.js webapp authentication
-     * @param {any} params Grouped parameters
+     * @param {any} options Grouped parameters
      */
-    public constructor(params: any) {
-        this.session = params.session;
-        this.passport = params.passport;
-        this.memoryStore = params.memoryStore;
+    public constructor(options: any) {
+        this.session = options.session;
+        this.passport = options.passport;
+        this.memoryStore = options.memoryStore;
     }
 
     /**
@@ -112,6 +112,4 @@ class PassportLocalSignup {
     }
 }
 
-export {
-    PassportLocalSignup
-};
+export default PassportLocalSignup;

@@ -1,18 +1,18 @@
 <html>
     <body>
         <div>
-            <button><a href="/">Home</a></button>
+            <button><a href="/access">Home</a></button>
             <button><a href="/signup">Signup</a></button>
         </div>
         <div>
-            <form>
+            <form action="http://localhost:3000/local-login", method="post">
                 <div>
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username">
+                    <label for="local-login-username">Username</label>
+                    <input type="text" id="local-login-username" name="username">
                 </div>
                 <div>
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password">
+                    <label for="local-login-password">Password</label>
+                    <input type="password" id="local-login-password" name="password">
                 </div>
                 <div>
                     <input type="submit" value="Login">
