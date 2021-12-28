@@ -1,101 +1,48 @@
 import * as cookieParser from "cookie-parser";
 import * as express from "express";
 import * as passport from "passport";
+import * as LocalStrategy from "passport-local";
 import * as session from "express-session";
 const MemoryStore: any = require("memorystore")(session);
-import PassportLocalSignup from "./passportLocalSignup";
-import PassportLocalLogin from "./passportLocalLogin";
-import PassportRouter from "./router";
+import LocalPassport from "./localPassport";
+import Router from "./router";
 
-/**
- * Express.js webapp
- */
-class App {
-    private app: any;
-    private memoryStore: any;
-    private passport: any;
-    private session: any;
+// Memorystore
+const memoryStore: any = new MemoryStore({checkPeriod: 86400000}); // 24 hours
 
-    /**
-     * Express.js webapp
-     */
-    public constructor() {
-        this.app = express();
-        this.memoryStore = new MemoryStore({
-            checkPeriod: 86400000 // 24 hours
-        });
-        this.passport = passport;
-    }
+// Middleware
+const app: any = express();
+app.use(express.static("public"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(session({
+    cookie: {maxAge: 86400000}, // 24 hours
+    store: memoryStore,
+    resave: false,
+    saveUninitialized: false,
+    secret: "secretsecret"
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-    /**
-     * Configure Express.js webapp
-     * @returns {void}
-     */
-    public configure = (): void => {
-        this.configureMiddleware();
-        this.configureAuthentication();
-        this.configureRouter();
-        this.configurePort();
-    }
+// Authentication
+const localPassport: any = new LocalPassport(memoryStore);
+passport.use("local-signup", new LocalStrategy(localPassport.localSignupStrategy));
+passport.use("local-login", new LocalStrategy(localPassport.localLoginStrategy));
+passport.serializeUser((user: any, done: any): void => done(null, user.username));
+passport.deserializeUser((username: string, done: any): void => {
+    const user: any = {
+        username: username,
+        password: memoryStore.store.get(username)
+    };
+    done(null, user);
+});
 
-    /**
-     * Configure Express.js webapp middleware
-     * @returns {void}
-     */
-    private configureMiddleware = (): void => {
-        this.app.use(express.static("public"));
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(cookieParser());
-        this.session = session({
-            cookie: {
-                maxAge: 86400000 // 24 hours
-            },
-            store: this.memoryStore,
-            resave: false,
-            saveUninitialized: false,
-            secret: "secretsecret"
-        });
-        this.app.use(this.session);
-        this.app.use(this.passport.initialize());
-        this.app.use(this.passport.session());
-    }
+// Router
+const router: any = new Router(passport);
+app.use(router.getRouter());
 
-    /**
-     * Configure Express.js webapp authentication
-     * @returns {void}
-     */
-    private configureAuthentication = (): void => {
-        const options: any = {
-            session: this.session,
-            passport: this.passport,
-            memoryStore: this.memoryStore
-        };
-        new PassportLocalSignup(options).configure();
-        new PassportLocalLogin(options).configure();
-    }
-
-    /**
-     * Configure Express.js webapp router
-     * @returns {void}
-     */
-    private configureRouter = (): void => {
-        const passportRouter: any = new PassportRouter({
-            passport: this.passport,
-            memoryStore: this.memoryStore
-        });
-        passportRouter.configure()
-        this.app.use(passportRouter.getRouter());
-    }
-
-    /**
-     * Configure Express.js webapp port
-     * @returns {void}
-     */
-    private configurePort = (): void => {
-        const PORT: number = 3000;
-        this.app.listen(PORT, () => console.log(`http://localhost:${PORT} live`));
-    }
-}
-
-new App().configure();
+// Port
+const PORT: number = 3000;
+app.listen(PORT, () => console.log(`http://localhost:${PORT} live`));
