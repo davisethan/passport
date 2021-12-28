@@ -8,7 +8,7 @@ import LocalPassport from "./localPassport";
 import Router from "./router";
 
 // Memorystore
-const memoryStore: any = new MemoryStore({checkPeriod: 86400000}); // 24 hours
+const memoryStore: any = new MemoryStore({ checkPeriod: 86400000 }); // 24 hours
 
 // Middleware
 const app: any = express();
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    cookie: {maxAge: 86400000}, // 24 hours
+    cookie: { maxAge: 86400000 }, // 24 hours
     store: memoryStore,
     resave: false,
     saveUninitialized: false,
