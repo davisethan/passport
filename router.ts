@@ -11,7 +11,7 @@ class Router {
         this.setRouter();
     }
 
-    public getRouter = (): any => {
+    public getRouter: any = (): any => {
         return this.router;
     }
 

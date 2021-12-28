@@ -34,6 +34,18 @@ class LocalPassport {
         }
     }
 
+    public serializeUser: any = (user: any, done: any): void => {
+        done(null, user.username);
+    }
+
+    public deserializeUser: any = (username: string, done: any): void => {
+        const user: any = {
+            username: username,
+            password: this.memoryStoreGetPassword(username)
+        };
+        done(null, user);
+    }
+
     private memoryStoreHasUsername: any = (username: string): boolean => {
         return this.memoryStore.store.has(username);
     }

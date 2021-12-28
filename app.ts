@@ -30,14 +30,8 @@ app.use(passport.session());
 const localPassport: any = new LocalPassport(memoryStore);
 passport.use("local-signup", new LocalStrategy(localPassport.localSignupStrategy));
 passport.use("local-login", new LocalStrategy(localPassport.localLoginStrategy));
-passport.serializeUser((user: any, done: any): void => done(null, user.username));
-passport.deserializeUser((username: string, done: any): void => {
-    const user: any = {
-        username: username,
-        password: memoryStore.store.get(username)
-    };
-    done(null, user);
-});
+passport.serializeUser(localPassport.serializeUser);
+passport.deserializeUser(localPassport.deserializeUser);
 
 // Router
 const router: any = new Router(passport);
