@@ -1,17 +1,18 @@
-import * as cookieParser from "cookie-parser";
-import * as express from "express";
-import * as passport from "passport";
-import * as LocalStrategy from "passport-local";
-import * as session from "express-session";
-const MemoryStore: any = require("memorystore")(session);
+import cookieParser from "cookie-parser";
+import express from "express";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import session from "express-session";
+import memorystore from "memorystore";
 import LocalPassport from "./localPassport";
 import Router from "./router";
 
 // Memorystore
-const memoryStore: any = new MemoryStore({ checkPeriod: 86400000 }); // 24 hours
+const MemoryStore = memorystore(session);
+const memoryStore = new MemoryStore({ checkPeriod: 86400000 }); // 24 hours
 
 // Middleware
-const app: any = express();
+const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,16 +28,16 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Authentication
-const localPassport: any = new LocalPassport(memoryStore);
+const localPassport = new LocalPassport(memoryStore);
 passport.use("local-signup", new LocalStrategy(localPassport.localSignupStrategy));
 passport.use("local-login", new LocalStrategy(localPassport.localLoginStrategy));
 passport.serializeUser(localPassport.serializeUser);
 passport.deserializeUser(localPassport.deserializeUser);
 
 // Router
-const router: any = new Router(passport);
+const router = new Router(passport);
 app.use(router.getRouter());
 
 // Port
-const PORT: number = 3000;
-app.listen(PORT, () => console.log(`http://localhost:${PORT} live`));
+const port = 3000;
+app.listen(port, () => console.log(`http://localhost:${PORT} live`));

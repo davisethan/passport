@@ -1,7 +1,8 @@
-import * as bcrypt from "bcrypt";
+import bcrypt from "bcrypt";
+import { VerifyFunction } from "passport-local";
 
 class LocalPassport {
-    private memoryStore: any;
+    private memoryStore;
 
     /**
      * Local authentication signup and login
@@ -17,18 +18,18 @@ class LocalPassport {
      * @param password Local signup password
      * @param done Local signup finished callback
      */
-    public localSignupStrategy: any = (username: string, password: string, done: any): void => {
+    public localSignupStrategy = ((username, password, done) => {
         if (this.memoryStoreHasUsername(username)) {
             done(null, null);
         } else {
             this.memoryStoreSetUsernameAndPassword(username, password);
-            const user: any = {
+            const user = {
                 username: username,
                 password: this.memoryStoreGetPassword(username)
             };
             done(null, user);
         }
-    }
+    }) as VerifyFunction;
 
     /**
      * Local login
@@ -36,26 +37,26 @@ class LocalPassport {
      * @param password Local login password
      * @param done Local login finished callback
      */
-    public localLoginStrategy: any = (username: string, password: string, done: any): void => {
+    public localLoginStrategy = ((username: string, password: string, done: any): void => {
         if (!this.memoryStoreHasUsername(username)) {
             done(null, null);
         } else if (!this.memoryStorePasswordMatch(username, password)) {
             done(null, null);
         } else {
-            const user: any = {
+            const user = {
                 username: username,
                 password: this.memoryStoreGetPassword(username)
             };
             done(null, user);
         }
-    }
+    }) as VerifyFunction;
 
     /**
      * Authentication serialize user for user session
      * @param user User for user session
      * @param done Authentication serialization finished callback
      */
-    public serializeUser: any = (user: any, done: any): void => {
+    public serializeUser = (user: any, done: any): void => {
         done(null, user.username);
     }
 
@@ -64,8 +65,8 @@ class LocalPassport {
      * @param username Username for user
      * @param done Authentication deserialization finished callback
      */
-    public deserializeUser: any = (username: string, done: any): void => {
-        const user: any = {
+    public deserializeUser = (username: string, done: any): void => {
+        const user = {
             username: username,
             password: this.memoryStoreGetPassword(username)
         };
@@ -77,7 +78,7 @@ class LocalPassport {
      * @param username Username maybe in memorystore
      * @returns Memorystore has username
      */
-    private memoryStoreHasUsername: any = (username: string): boolean => {
+    private memoryStoreHasUsername = (username: string): boolean => {
         return this.memoryStore.store.has(username);
     }
 
@@ -86,8 +87,8 @@ class LocalPassport {
      * @param username Username in pair
      * @param password Password in pair
      */
-    private memoryStoreSetUsernameAndPassword: any = async (username: string, password: string): Promise<any> => {
-        const saltRounds: number = 8;
+    private memoryStoreSetUsernameAndPassword = async (username: string, password: string) => {
+        const saltRounds = 8;
         const hash: string = await bcrypt.hash(password, saltRounds);
         this.memoryStore.store.set(username, hash);
     }
@@ -97,7 +98,7 @@ class LocalPassport {
      * @param username Username in memorystore pair
      * @returns Password hash
      */
-    private memoryStoreGetPassword: any = (username: string): string => {
+    private memoryStoreGetPassword = (username: string): string => {
         return this.memoryStore.store.get(username);
     }
 
@@ -107,7 +108,7 @@ class LocalPassport {
      * @param password Password maybe in pair
      * @returns Password hash matches password
      */
-    private memoryStorePasswordMatch: any = async (username: string, password: string): Promise<any> => {
+    private memoryStorePasswordMatch = async (username: string, password: string) => {
         const hash: string = this.memoryStoreGetPassword(username);
         const passwordMatch: boolean = await bcrypt.compare(password, hash);
         return passwordMatch;
